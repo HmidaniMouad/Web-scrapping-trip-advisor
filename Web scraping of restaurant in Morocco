@@ -1,0 +1,200 @@
+import pandas as pd
+import openpyxl
+from selenium import webdriver
+
+from selenium.webdriver.chrome.service import Service
+
+from selenium.webdriver.support.ui import WebDriverWait
+
+from selenium.webdriver.support import expected_conditions as EC
+
+from bs4 import BeautifulSoup
+
+import codecs
+
+import re
+
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+import time
+from unidecode import unidecode
+driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://www.tripadvisor.com/Restaurants-g293730-Morocco.html")
+
+my_list = []
+
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, "html.parser")
+url0 = soup.select_one("#LOCATION_LIST").select(".geo_name")
+for i in range(0, len(url0)):
+  url=url0[i].select_one("a")
+  my_list.append(url["href"])
+
+a=True
+j=1
+while a:
+  j+=1
+  try:
+    button=driver.find_element(By.CLASS_NAME, "deckTools").find_element(By.LINK_TEXT, str(j))
+    button.click()
+  except:
+    print("congrats ,you finished")
+    a=False
+    break
+  time.sleep(1)
+  page_source = driver.page_source
+  soup = BeautifulSoup(page_source, "html.parser")
+  url0 = soup.select_one("#LOCATION_LIST").select_one(".geoList").select("li")
+  for i in range(0, len(url0)):
+    url=url0[i].select_one("a")
+    my_list.append(url["href"])
+
+
+url_list=[]
+for i in range(27,len(my_list)):
+  driver.get("https://www.tripadvisor.com"+my_list[i][0])
+  t=True
+  while t:
+    time.sleep(1)
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, "html.parser")
+    a=soup.select_one(".YtrWs").select(".RfBGI")
+    for j in a:
+      url_list.append(j.select_one("a")["href"])
+    
+    try:
+      button=driver.find_element(By.CLASS_NAME, "unified").find_element(By.CLASS_NAME, "next")
+      button.click()
+      time.sleep(2)
+    except:
+      t=False
+
+
+h = list(set(url_list))
+df=pd.DataFrame(h)
+
+df.to_excel("C:/Users/lenovo/Desktop/scrap/url_list_restau.xlsx", index=False)
+
+L=[]
+
+
+for i in range(6542,len(h)):
+  driver.get("https://www.tripadvisor.com"+h[i][0])
+  time.sleep(0.2)
+  page_source = driver.page_source
+  soup = BeautifulSoup(page_source, 'html.parser')
+  l=[]
+  hm = soup.select_one(".lBkqB._T")
+  restau_name=hm.select_one(".HjBfq").text
+  Location=hm.select(".AYHFM")
+  l.append(hotel_name)
+  l.append(Location[1].text)
+  
+  
+  a=soup.select_one("#taplc_trip_planner_breadcrumbs_0").select(".link")
+  region=a[2].select_one("span").text
+  city=a[3].select_one("span").text
+  l.append(region)
+  l.append(city)
+  
+  claimed=hm.select_one(".XAnbq._S ").text
+  l.append(claimed)
+  
+  
+  
+  
+  b=soup.select(".xLvvm.ui_column.is-12-mobile.is-4-desktop")
+  try:
+    rate=unidecode(b[0].select_one(".ZDEqb").text)
+    l.append(rate)
+  except:
+    l.append('')
+  
+  try:
+     nr=b[0].select_one(".IcelI").text
+     l.append(nr)
+  except:
+    l.append('0')
+  
+  b=specific_paragraph = soup.select('h2:-soup-contains("Details")')
+  p0=b[0].parent
+  p=p0.parent
+  try:
+    button=driver.find_element(By.CLASS_NAME, "OTyAN")
+    button.click()
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, 'html.parser')
+    b=specific_paragraph = soup.select('div:-soup-contains("Details")')
+    p=b[0].parent
+    
+  except:
+    pass
+  
+  try:
+     PR=p.select('div:-soup-contains("PRICE RANGE")')
+     PRICE_RANGE=unidecode(PR[-1].next_sibling.text)
+     l.append(PRICE_RANGE)
+  except:
+    l.append('')
+  
+  try:
+     M=p.select('div:-soup-contains("Meals")')
+     MEALS=M[-1].next_sibling.text
+     l.append(MEALS)
+  except:
+    l.append('')
+  
+  
+  try:
+     C=p.select('div:-soup-contains("CUISINES")')
+     CUISINES=unidecode(C[-1].next_sibling.text)
+     l.append(CUISINES)
+  except:
+    l.append('')
+
+  try:
+     F=p.select('div:-soup-contains("FEATURES")')
+     FEATURES=unidecode(F[-1].next_sibling.text)
+     l.append(FEATURES)
+  except:
+    l.append('')
+    
+  try:
+     SD=p.select('div:-soup-contains("Special Diets")')
+     SPECIAL_DIETS=unidecode(SD[-1].next_sibling.text)
+     l.append(SPECIAL_DIETS)
+  except:
+    l.append('')
+    
+  L.append(l) 
+  
+   
+for i in range(6542,len(h)):
+  driver.get("https://www.tripadvisor.com"+h[][0])
+  time.sleep(0.2)
+  page_source = driver.page_source
+  soup = BeautifulSoup(page_source, 'html.parser')
+  l=[]
+ 
+    
+  L.append(l) 
+
+
+df=pd.DataFrame(L)
+
+df.to_excel("C:/Users/lenovo/Desktop/scrap/list_restaus.xlsx", index=False)
+
+
+
+
+for i in range(0,len(h)):
+  driver.get("https://www.tripadvisor.com"+h[0][0])
+  time.sleep(0.2)
+  page_source = driver.page_source
+  soup = BeautifulSoup(page_source, 'html.parser')
+  l=[]
+  hm = soup.select_one(".lBkqB._T")
+  Location=hm.select(".AYHFM")
+  l.append(hotel_name)
+  
