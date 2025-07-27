@@ -1,0 +1,163 @@
+import pandas as pd
+import openpyxl
+from selenium import webdriver
+
+from selenium.webdriver.chrome.service import Service
+
+from selenium.webdriver.support.ui import WebDriverWait
+
+from selenium.webdriver.support import expected_conditions as EC
+
+from bs4 import BeautifulSoup
+
+import codecs
+
+import re
+
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+import time
+from unidecode import unidecode
+driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+
+""""
+val = "https://www.tripadvisor.com/Hotels-g293730-Morocco-Hotels.html"
+
+wait = WebDriverWait(driver, 10)""""
+
+driver.get("https://www.tripadvisor.com/Hotels-g293730-Morocco-Hotels.html")
+
+
+get_url = driver.current_url
+
+driver.get("https://www.tripadvisor.com/Hotels-g293730-oa7000-Morocco-Hotels.html")
+""""
+while (get_url1!=get_url) {
+  
+  driver.get("https://www.tripadvisor.com/Hotels-g293730-oa"+ str(i) + "-Morocco-Hotels.html")
+  get_url1 = driver.current_url
+  print(i)
+  i <- i + 30
+}
+
+
+get_url1!=get_url
+i=30
+p=str(i)
+driver.get("https://www.tripadvisor.com/Hotels-g293730-oa"+ str(i) + "-Morocco-Hotels.html")
+
+""""
+
+
+
+driver.get("https://www.tripadvisor.com/Hotels-g293730-Morocco-Hotels.html")
+button=driver.find_element(By.CLASS_NAME, "xkSty").find_element(By.TAG_NAME, "a")
+my_list = []
+a=True
+while a:
+      page_source = driver.page_source
+      soup1 = BeautifulSoup(page_source, "html.parser")
+      div_element3 = soup1.select_one("div.EJmPL._T.e.bADWL._T.PnJDh").select("div.jsTLT.K")
+      for i in range(0, len(div_element3)):
+           L=div_element3[i].select_one("a.BMQDV._F.Gv.wSSLS.SwZTJ.FGwzt.ukgoS")
+           my_list.append(L["href"])
+      try:
+            button.click()
+      except:
+            print("congrats ,you finished")
+            a=False
+      time.sleep(10)
+      
+      
+
+len(my_list)
+my_list[0]
+
+h = list(set(s))
+
+
+len(unique_list)
+
+df = pd.DataFrame(my_list, columns=["url"])
+
+# Create a new Excel file
+df.to_excel("C:/Users/lenovo/Desktop/scrap/final.xlsx", index=False)
+
+
+
+i=30
+
+
+L=[]
+
+l=[]
+
+for i in range(2900,len(my_list)):
+  driver.get("https://www.tripadvisor.com"+my_list[i][0])
+  time.sleep(0.15)
+  page_source = driver.page_source
+  soup = BeautifulSoup(page_source, 'html.parser')
+  l=[]
+  hm = soup.select_one(".aYaow.f.e.Gi.Pk")
+  hotel_name=hm.select_one("#HEADING").text
+  Location=hm.select_one(".oAPmj._S").select_one(".biGQs._P.pZUbB.KxBGd").text
+  l.append(hotel_name)
+  l.append(Location)
+  
+  
+  a=soup.select_one("#taplc_trip_planner_breadcrumbs_0").select(".link")
+  region=a[2].select_one("span").text
+  city=a[3].select_one("span").text
+  l.append(region)
+  l.append(city)
+  
+  
+  b=soup.select_one(".ui_columns.MXlSZ")
+  try:
+    rate=b.select_one(".uwJeR.P").text
+    l.append(rate)
+  except:
+    l.append('')
+  
+  
+  try:
+     nr=b.select_one(".hkxYU.q.Wi.z.Wc").text
+     l.append(nr)
+  except:
+    l.append('0')
+ 
+  try:
+    stars=soup.select_one(".JXZuC.d.H0").get('aria-label')
+    l.append(stars)
+    
+  except:
+    l.append('')
+  
+  price=soup.select_one(".XQgaU").select(".gbXAQ")
+  
+  for s in price:
+    a=unidecode(s.text)
+    l.append(a)
+  
+  while len(l)<10 :
+    l.append('')
+  
+  try:
+    f=soup.select_one(".SSDgd").select(".CzVMJ")
+    for q in f:
+      l.append(q.text)
+  except:
+    l.append('')
+    l.append('')
+    l.append('')
+    l.append('')
+  
+  
+  
+  L.append(l)
+  
+
+
+
+df=pd.DataFrame(L)
