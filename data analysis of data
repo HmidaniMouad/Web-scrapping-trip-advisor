@@ -1,0 +1,48 @@
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+
+
+districts["region"] =['Tanger-Tétouan-Al Hoceïma','Oriental','Drâa-Tafilalet','Souss-Massa','Guelmim-Oued Noun','Casablanca-Settat','Marrakech-Safi','Laâyoune-Sakia El Hamra','Dakhla-Oued Ed-Dahab','Rabat-Salé-Kénitra','Fès-Meknès','Béni Mellal-Khénifra']
+
+districts["Region Prix.moyen"]=[1413.8865,1411.0000,807.3889,1223.1978,329.3333,1121.8450,1185.9121,'NA','NA',1194.3444,694.7155,957.7500]
+
+
+
+
+
+print(districts.columns)
+
+url = 'https://cdn.jsdelivr.net/npm/morocco-map/data/regions.json'
+
+districts = gpd.read_file(url)
+fig, ax = plt.subplots(figsize=(12, 9))
+districts
+districts.plot(column="Region Prix.moyen", cmap="OrRd", legend=True)
+plt.show()
+districts["Mark_Hotel"] =[4.326923,4.358333,4.788256,4.664226,4.500000,4.062500,4.340909,4.614066,4.600000,4.358333,4.643275,4.590909]
+districts["Mark_Restau"] =[4.004638,3.838710,4.484375,4.191291,3.650000,3.866525,4.248928,4.000000,4.446429,3.895717,4.198543,3.888889]
+
+
+ax = districts.plot(column="Mark_Hotel", cmap="OrRd", legend=True)
+
+# Add a title to the legend
+legend = ax.get_legend()
+
+legend.set_bbox_to_anchor((1, 1))
+legend.set_title("Mark_Hotel")
+
+
+districts.plot(column="Mark_Hotel", cmap="OrRd", legend=True, legend_kwds={'label': "Mark_Hotel"})
+
+
+plt.axis('off')
+
+plt.savefig('output_plot.png', bbox_inches='tight')
+
+      
+plt.savefig('output_plot1.png', dpi=300)
+
+for x, y, name in zip(districts.geometry.centroid.x, districts.geometry.centroid.y, districts['region']):
+    plt.text(x, y, name, ha='center', va='center', fontsize=3, fontweight='bold', color='blue')
